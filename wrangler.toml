@@ -1,0 +1,6 @@
+# wrangler.toml
+name = "codex"           # pick a name; must match Cloudflare worker name if you connect in dashboard
+main = "worker.js"                  # entry point in your repo
+compatibility_date = "2025-09-09"   # set to today (Cloudflare docs suggest a compat date)
+workers_dev = true
+account_id = "2843bc95cb9d59573acafae987a29a15"      # optional here if you prefer to set accountId via GH Secrets
