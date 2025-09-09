@@ -112,7 +112,10 @@ async function handleProxy(request) {
     
     const newResponse = new Response(assetResponse.body, assetResponse);
     
-    newResponse.headers.set("Access-Control-Allow-Origin", "https://f4nation.com");
+    if (!newResponse.headers.has("Access-Control-Allow-Origin")) {
+        newResponse.headers.set("Access-Control-Allow-Origin", "https://f4nation.com");
+    }
+    
     newResponse.headers.append("Vary", "Origin");
     
     return newResponse;
