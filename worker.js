@@ -93,7 +93,25 @@ addEventListener("fetch", (event) => {
 
 async function handleProxy(request) {
   const url = new URL(request.url);
+
+ 
+  if (url.pathname.startsWith("/_next") || url.pathname.startsWith("/static")) {
+    const assetUrl = new URL(url.pathname + url.search, "https://codex.f3nation.com");
+    const headers = new Headers(request.headers);
+    headers.set("Host", "codex.f3nation.com");
+    
+    const assetResponse = await fetch(assetUrl, { method: request.method, headers, body: request.body });
+    
+
+    const newResponse = new Response(assetResponse.body, assetResponse);
+    
+    newResponse.headers.set("Access-Control-Allow-Origin", "https://f4nation.com");
+    newResponse.headers.append("Vary", "Origin");
+    
+    return newResponse;
+  }
   
+  // Proxy HTML pages from Codex
   const codexUrl = new URL(url.pathname + url.search, "https://codex.f3nation.com");
   const proxyHeaders = new Headers(request.headers);
   proxyHeaders.set("Host", "codex.f3nation.com");
