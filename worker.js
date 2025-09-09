@@ -1,12 +1,10 @@
-// Cache for both CSS, Header, and Footer - fetch once and cache it
 let cachedF3Content = { css: null, header: null, footer: null };
 let cacheTimestamp = null;
-const CACHE_DURATION = 3600000; // 1 hour in milliseconds
+const CACHE_DURATION = 3600000;
 
 async function getF3NationContent() {
   const now = Date.now();
   
-  // Return cached content if still valid
   if (cachedF3Content.css && cachedF3Content.header && cachedF3Content.footer && cacheTimestamp && (now - cacheTimestamp) < CACHE_DURATION) {
     return cachedF3Content;
   }
@@ -94,15 +92,24 @@ addEventListener("fetch", (event) => {
 async function handleProxy(request) {
   const url = new URL(request.url);
 
- 
   if (url.pathname.startsWith("/_next") || url.pathname.startsWith("/static")) {
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        status: 204,
+        headers: {
+          "Access-Control-Allow-Origin": "https://f4nation.com",
+          "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type",
+        },
+      });
+    }
+
     const assetUrl = new URL(url.pathname + url.search, "https://codex.f3nation.com");
     const headers = new Headers(request.headers);
     headers.set("Host", "codex.f3nation.com");
     
     const assetResponse = await fetch(assetUrl, { method: request.method, headers, body: request.body });
     
-
     const newResponse = new Response(assetResponse.body, assetResponse);
     
     newResponse.headers.set("Access-Control-Allow-Origin", "https://f4nation.com");
@@ -111,7 +118,6 @@ async function handleProxy(request) {
     return newResponse;
   }
   
-  // Proxy HTML pages from Codex
   const codexUrl = new URL(url.pathname + url.search, "https://codex.f3nation.com");
   const proxyHeaders = new Headers(request.headers);
   proxyHeaders.set("Host", "codex.f3nation.com");
