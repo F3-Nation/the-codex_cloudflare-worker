@@ -93,9 +93,10 @@ async function handleProxy(request) {
   const url = new URL(request.url);
 
   if (url.pathname.startsWith("/_next") || url.pathname.startsWith("/static")) {
+    // Handle OPTIONS requests for CORS preflight
     if (request.method === "OPTIONS") {
       return new Response(null, {
-        status: 204,
+        status: 204, // 204 No Content is the standard for a successful OPTIONS request
         headers: {
           "Access-Control-Allow-Origin": "https://f4nation.com",
           "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
@@ -112,6 +113,7 @@ async function handleProxy(request) {
     
     const newResponse = new Response(assetResponse.body, assetResponse);
     
+    // Ensure the CORS header is always present on the response
     if (!newResponse.headers.has("Access-Control-Allow-Origin")) {
         newResponse.headers.set("Access-Control-Allow-Origin", "https://f4nation.com");
     }
@@ -121,6 +123,7 @@ async function handleProxy(request) {
     return newResponse;
   }
   
+  // The rest of the proxy logic for HTML and other assets remains the same
   const codexUrl = new URL(url.pathname + url.search, "https://codex.f3nation.com");
   const proxyHeaders = new Headers(request.headers);
   proxyHeaders.set("Host", "codex.f3nation.com");
